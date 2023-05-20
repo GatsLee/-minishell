@@ -1,7 +1,18 @@
-#include "../minishell.h"
-#include <stdio.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   test_ops.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jehelee <jehelee@student.42.kr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/05/11 16:15:49 by jehelee           #+#    #+#             */
+/*   Updated: 2023/05/11 16:16:04 by jehelee          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-void print_list(t_element *head)
+#include "minishell.h"
+
+void	print_list(t_element *head)
 {
 	size_t	idx = 1;
 
@@ -23,7 +34,7 @@ void	print_env(t_env_lst *head)
 	}
 }
 
-void print_tree(t_token *head)
+void	print_tree(t_token *head)
 {
 	if (head == 0)
 		return ;

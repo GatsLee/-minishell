@@ -6,15 +6,11 @@
 /*   By: jehelee <jehelee@student.42.kr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/17 15:26:47 by joon-lee          #+#    #+#             */
-/*   Updated: 2023/05/08 05:03:38 by jehelee          ###   ########.fr       */
+/*   Updated: 2023/05/14 23:07:27 by jehelee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include "minishell.h"
 
-void aaa(void)
-{
-	system("leaks minishell | grep leaked");
-}
+#include "minishell.h"
 
 int	g_exit_status;
 
@@ -27,24 +23,25 @@ static void	init_main(t_cmd *cmd, char **envp)
 	tcgetattr(STDIN_FILENO, &term);
 	term.c_lflag &= ~(ECHOCTL);
 	tcsetattr(STDIN_FILENO, TCSANOW, &term);
-	signal_init(2, 2);
 }
 
 static void	parse_n_execute(t_cmd *cmd, char *line)
 {
-	int	*hd_cnt;
+	int			hd_cnt;
+	int			hd_fail;
 
-	hd_cnt = malloc(sizeof(int));
-	if (!hd_cnt)
-		ft_exit_with_error("malloc error\n", 0);
-	*hd_cnt = 0;
+	hd_cnt = 0;
+	hd_fail = 0;
 	line_parse(cmd, line);
-	syntex_check(cmd);
+	if (g_exit_status == 258)
+		return ;
+	if (syntex_check(cmd) == NO)
+		return ;
 	convert_tree(cmd);
-	print_tree(cmd->tree_head);
-	// search_hd(cmd->tree_head, hd_cnt);
-	// search_tree(cmd->tree_head, cmd);
-	free(hd_cnt);
+	search_hd(cmd, cmd->tree_head, &hd_cnt, &hd_fail);
+	if (hd_fail == 1)
+		return ;
+	search_tree(cmd->tree_head, cmd);
 }
 
 char	**lst_to_table(t_cmd *cmd)
@@ -76,13 +73,19 @@ char	**lst_to_table(t_cmd *cmd)
 	return (table);
 }
 
-void	read_line_loop(char *line, t_cmd *cmd)
+void	read_line_loop(t_cmd *cmd)
 {
+	char	*line;
+
 	while (1)
 	{
+		signal_init(2, 2);
 		line = readline("MINISHELL $ ");
 		if (!line)
+		{
+			printf("exit\n");
 			break ;
+		}
 		if (*line != '\0')
 			add_history(line);
 		if (*line != '\0' && is_everything_whitespace(line) == NO)
@@ -93,20 +96,22 @@ void	read_line_loop(char *line, t_cmd *cmd)
 		else
 			free(line);
 	}
+	close(cmd->back_up_fd[READ]);
+	close(cmd->back_up_fd[WRITE]);
 }
 
 int	main(int ac, char **av, char **envp)
 {
-	atexit(aaa);
 	struct termios	term;
-	char			*line;
 	t_cmd			cmd;
 
 	if (ac != 1)
-		ft_exit_with_error("wrong number of argument\n", 0);
+		ft_exit_with_error("wrong number of argument", 0);
+	if (!av)
+		av = 0;
 	tcgetattr(STDIN_FILENO, &term);
 	init_main(&cmd, envp);
-	read_line_loop(line, &cmd);
+	read_line_loop(&cmd);
 	signal_init(1, 1);
 	tcsetattr(STDIN_FILENO, TCSANOW, &term);
 	return (EXIT_SUCCESS);
