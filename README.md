@@ -1,18 +1,14 @@
 # Minishell in 42Seoul
 
-A valuable piece of experience making shell(similar to bash)
+to make a shell similar to bash
 
 ## Project Teammates
 
 ---
 
-### `parsing`:
+### `parsing`: joon-lee(me)
 
-### joon-lee(me)
-
-### `execution`:
-
-### jehelee
+### `execution`: jehelee
 
 ## Progress of Project
 
